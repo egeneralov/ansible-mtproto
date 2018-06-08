@@ -1,6 +1,7 @@
 ---
 # tasks file for egeneralov.mtproto
 
+
 - apt:
     name: "{{ item }}"
     update_cache: yes
@@ -41,18 +42,18 @@
     daemon_reload: yes
     name: "mtproto.service"
     state: started
+    enabled: yes
 
-- name: "iptables: mtproto"
-  iptables:
+- iptables:
     chain: INPUT
     protocol: tcp
-    destination_port: 44
+    destination_port: "{{ proxy_port }}"
     ctstate: NEW,ESTABLISHED
     jump: ACCEPT
     comment: Allow mtproto
 
 - debug:
-    msg: "tg://proxy?server={{ ansible_default_ipv4.address }}&port=44&secret={{ passwd.stdout }}"
+    msg: "tg://proxy?server={{ ansible_default_ipv4.address }}&port={{ proxy_port }}&secret={{ passwd.stdout }}"
 
 
 

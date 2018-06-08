@@ -3,6 +3,9 @@ egeneralov.mtproto
 
 Deploy telegram proxy.
 
+[![asciicast](https://asciinema.org/a/186296.png)](https://asciinema.org/a/186296)
+
+
 Requirements
 ------------
 
