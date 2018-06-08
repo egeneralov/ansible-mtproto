@@ -1,0 +1,58 @@
+---
+# tasks file for egeneralov.mtproto
+
+- apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 60
+  with_items:
+    - git
+    - xxd
+
+- file:
+    path: /opt/mtproto
+    state: directory
+
+- unarchive:
+    src: https://github.com/egeneralov/mtproto/raw/master/mtproto-proxy.tar.gz
+    remote_src: yes
+    dest: /opt/mtproto
+
+- get_url:
+    url: https://core.telegram.org/getProxySecret
+    dest: /opt/mtproto/proxy-secret
+- get_url:
+    url: https://core.telegram.org/getProxyConfig
+    dest: /opt/mtproto/proxy-multi.conf
+
+- shell: head -c 16 /dev/urandom | xxd -ps | tee /opt/mtproto/user.passwd
+  args:
+    creates: /opt/mtproto/user.passwd
+
+- shell: cat /opt/mtproto/user.passwd
+  register: passwd
+  changed_when: false
+
+- template:
+    src: mtproto.service.j2
+    dest: /etc/systemd/system/mtproto.service
+
+- systemd:
+    daemon_reload: yes
+    name: "mtproto.service"
+    state: started
+
+- name: "iptables: mtproto"
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 44
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: Allow mtproto
+
+- debug:
+    msg: "tg://proxy?server={{ ansible_default_ipv4.address }}&port=44&secret={{ passwd.stdout }}"
+
+
+
