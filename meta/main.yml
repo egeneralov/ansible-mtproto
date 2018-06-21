@@ -5,7 +5,7 @@ galaxy_info:
   license: MIT
   min_ansible_version: 1.2
   platforms:
-  - name: Fedora
+  - name: Debian
     versions:
     - buster
     - stretch
